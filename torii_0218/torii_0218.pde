@@ -20,11 +20,16 @@ PImage bg;
 int mode = 0;
 boolean drumDetect = false;
 
+float bgNoise1=0;
+float bgNoise2=0;
+float bgNoise3=0;
+float bgNoise4=0;
+
 void setup() {
   size(800, 800, P3D);
   torii_img = loadImage("torii.png");
   lyrics = loadImage("lyrics.jpeg");
-  bg = loadImage("bg2.jpg");
+  bg = loadImage("background.jpg");
   album = loadImage("image.jpeg");
   torii = new ArrayList<Particle>();
   fx = new PostFX(this);
@@ -34,9 +39,12 @@ void setup() {
   frameRate(30);
   smooth(8);
 
-  for (int s=0; s<800; s++) {
-    stars.add(new Star(random(1, 20)));
-  }
+
+  bgNoise1=random(1000);
+  bgNoise2=random(1000);
+  bgNoise3=random(1000);
+  bgNoise4=random(1000);
+
   /*
   for (int s=0; s<10000; s++) {
    int tx = floor(random(torii_img.width));
@@ -84,19 +92,58 @@ void setup() {
 void draw() {
   hint(DISABLE_DEPTH_TEST);
   general_soundCheck();
-  //background(intro.volume*255, intro.volume*100, intro.volume*100);
-  //background(255);
+
+
+
+  //background(0);
   camera(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0), width/2.0, height/2.0, 0, 0, 1, 0);
+
+
+  colorMode(HSB, 255);
+  //background(random(255), intro.volume*100, 255);
+  noStroke();
+  /*
+  fill(random(255), intro.volume*100, 255);
+   rect(0, 0, width/2, height/2);
+   fill(random(255), intro.volume*100, 255);
+   rect(width/2, 0, width/2, height/2);
+   fill(random(255), intro.volume*100, 255);
+   rect(width/2, height/2, width/2, height/2);
+   fill(random(255), intro.volume*100, 255);
+   rect(0, height/2, width/2, height/2);
+   */
+
+
+  println(intro_drum.volume_Bass);
+  float shift = 1+(intro_drum.volume_Bass*0.1);
+  beginShape();
+  fill(255*sin(radians(bgNoise1)), 20+intro.volume*70, 255);
+  bgNoise1+=shift;
+  vertex(0, 0);
+  fill(255*sin(radians(bgNoise2)), 20+intro.volume*70, 255);
+  bgNoise2+=shift;
+  vertex(width, 0);
+  fill(255*sin(radians(bgNoise3)), 20+intro.volume*70, 255);
+  bgNoise3+=shift;
+  vertex(width, height);
+  fill(255*sin(radians(bgNoise4)), 20+intro.volume*70, 255);
+  bgNoise4+=shift;
+  vertex(0, height);
+  endShape(CLOSE);
+  colorMode(RGB, 255);
+
+
   //bg.filter(INVERT);
-  tint(255, 200+intro.volume_Bass*10);
+  tint(255, intro.volume*100);
   imageMode(CENTER);
-  float rs =1;
+  float rs =2;
   rs = 1+intro.volume/10;
   //println(intro_drum.volume_Bass);
   pushMatrix();
   translate(width/2, height/2);
   rotate(radians(frameCount)/2);
-  image(bg, 0, 0, width*rs*1.5, height*rs*1.5);
+  tint(255);
+  //image(bg, 0, 0, width*rs*1.5, height*rs*1.5);
   imageMode(CORNER);
   popMatrix();
   tint(255);
@@ -111,10 +158,7 @@ void draw() {
   camera(camX, camY, camZ, 0, 0, 0, 0, 1, 0);
 
   //translate(width/2, height/2);
-  for (int s=0; s<stars.size(); s++) {
-    // ((Star)(stars.get(s))).update();
-    // ((Star)(stars.get(s))).show();
-  }
+
 
   for (int s=0; s<torii.size(); s++) {
     Particle P = ((Particle)(torii.get(s)));
@@ -128,7 +172,7 @@ void draw() {
     drumDetect = false;
   }
 
-  mode =0;
+  mode = 2;
   if (mode == 0) {
     //beginShape(TRIANGLE_STRIP);
     for (int s=0; s<torii.size(); s++) {
@@ -139,20 +183,25 @@ void draw() {
     beginShape(TRIANGLE_STRIP);
     for (int s=0; s<torii.size(); s++) {
       Particle P = ((Particle)(torii.get(s)));
-      float f = constrain(map(intro_drum.volume_Bass, 0, 50, 0.4, 1), 0, 1);
+      float f = constrain(map(intro_lead.volume, 0, 10, 0.4, 1), 0, 1);
 
-      stroke(red(P.c), green(P.c), blue(P.c), f*20);
+      stroke(red(P.c), green(P.c), blue(P.c), f*100);
       strokeWeight(1);
-
+      //noFill();
       //stroke(10);
-      fill(red(P.c), green(P.c), blue(P.c), f*50);
+      colorMode(HSB, 255);
+      fill(random(255), 200, 200, f*100);
+      colorMode(RGB, 255);
+      //fill(red(P.c), green(P.c), blue(P.c), f*100);
+      //noStroke();
+      noStroke();
+
       vertex(P.px, P.py, P.pz);
     }
     endShape(CLOSE);
   } else if (mode ==2) {
-    println(intro_vocal.volume);
-    float f = constrain(map(intro_drum.volume_Bass, 0, 30, 0.5, 1), 0, 1);
-    for (int s=0; s<torii.size()*f*2; s++) {
+    float f = constrain(map(intro_drum.volume_Bass, 0, 30, 0.1, 1), 0, 1);
+    for (int s=0; s<torii.size()*10; s++) {
       int f1 = floor(random(torii.size()));
       int f2 = floor(random(torii.size()));
       Particle P1 = ((Particle)(torii.get(f1)));
@@ -160,11 +209,20 @@ void draw() {
       noFill();
       strokeWeight(1);
       //stroke(1);
-      float q = 30+f*40;
+      float q = 20+f*10;
       if (dist(P1.px, P1.py, P1.pz, P2.px, P2.py, P2.pz)<q) {
-        float k = map(intro_vocal.volume, 0, 0.2, 30, 60);
-        strokeWeight(map(k, 20, 80, 1, 2));
+        float k = map(intro.volume, 0, 1, 50, 255);
+        strokeWeight(map(k, 10, 30, 0.5, 1));
         stroke(red(P1.c), green(P1.c), blue(P1.c), k);
+
+        float foo = floor(random(5));
+        color fooC = color(255);
+        if (foo==1)fooC = color(#FF99C8);
+        if (foo==2)fooC = color(#FCF6BD);
+        if (foo==3)fooC = color(#D0F4DE);
+        if (foo==4)fooC = color(#A9DEF9);
+        if (foo==5)fooC = color(#E4C1F9);
+        stroke(fooC, k);
         line(P1.px, P1.py, P1.pz, P2.px, P2.py, P2.pz);
       }
     }
@@ -172,27 +230,26 @@ void draw() {
 
   //println(torii.size());
   blendMode(BLEND);
-  fx.render()
-    //.invert()
-    .sobel()
-    .bloom(0.1, 1, 30)
-    .blur(10, 1)
-    //.toon()
-    //.brightPass(0.1)
-    //.blur(30, 10)
-    .compose();
+  //fx.render()
+  //.sobel()
+  //.bloom(1, 1, 30)
+  //.blur(10, 1)
+  //.toon()
+  //.brightPass(0.1)
+  //.blur(30, 10)
+  //  .compose();
 
-  blendMode(REPLACE);
-  tint(255, 10);
-  fx.render()
-    .invert()
-    //.sobel()
-    //.bloom(0.1, 1, 30)
-    //.blur(10, 1)
-    //.toon()
-    //.brightPass(0.1)
-    //.blur(30, 10)
-    .compose();
+  //blendMode(REPLACE);
+  //tint(255, 10);
+  //fx.render()
+  //  .invert()
+  //  //.sobel()
+  //  //.bloom(0.1, 1, 30)
+  //  //.blur(10, 1)
+  //  //.toon()
+  //  //.brightPass(0.1)
+  //  //.blur(30, 10)
+  //  .compose();
 
   tint(255);
 
@@ -226,14 +283,14 @@ class Particle {
 
     float R1, R2;
     float a, t;
-    R1 = 7*norm(intro_drum.volume, 0, 5);
-    R2 = 7*norm(intro_drum.volume, 0, 5);
+    R1 = 20*norm(intro.volume, 0, 10);
+    R2 = 20*norm(intro.volume, 0, 10);
     //R1 = 0;
-    a = (pz*frameCount)*0.01;
-    t = (px*frameCount)*0.01;
+    a = (pz*frameCount)*0.1;
+    t = (px*frameCount)*0.1;
     //R1 = 10;
     float fx = R1*sin(radians(a))*tan(radians(t));
-    float fy = R1*cos(radians(a))*cos(radians(t));
+    float fy = R2*cos(radians(a))*cos(radians(t));
     float fz = R2*tan(radians(a))*sin(radians(t));
 
     ppx = ori_x + fx;
@@ -259,6 +316,9 @@ class Particle {
     float flick = constrain(intro.volume*1, 1, 5);
     //line(0, 0, 0, 0, 1, 0);
 
+    colorMode(HSB, 255);
+    stroke(random(255), 100, 255, 100);
+    colorMode(RGB, 255);
     line(0, 0, 0, 
       random(-flick, flick), 
       random(-flick, flick), 

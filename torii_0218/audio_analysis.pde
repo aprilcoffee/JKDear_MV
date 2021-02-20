@@ -15,20 +15,24 @@ audio intro_vocal;
 audio intro_drum;
 
 
-String song = "intro";
+String song = "summer";
+String parentFolder; 
+
 
 void audio_setup() {
+  parentFolder = sketchFile("").getParent();
+
   //input = new AudioIn(this, 0);
   //input.start();
-  sound_intro = new SoundFile(this, "music/"+song+".wav");
-  sound_intro_lead = new SoundFile(this, "music/"+song+"_lead.wav");
-  sound_intro_guitar = new SoundFile(this, "music/"+song+"_guitar.wav");
-  sound_intro_vocal = new SoundFile(this, "music/"+song+"_vocal.wav");
-  sound_intro_drum = new SoundFile(this, "music/"+song+"_drum.wav");
+  sound_intro = new SoundFile(this, parentFolder+"/music/"+song+".wav");
+  sound_intro_lead = new SoundFile(this, parentFolder+"/music/"+song+"_lead.wav");
+  sound_intro_guitar = new SoundFile(this, parentFolder+"/music/"+song+"_guitar.wav");
+  sound_intro_vocal = new SoundFile(this, parentFolder+"/music/"+song+"_vocal.wav");
+  sound_intro_drum = new SoundFile(this, parentFolder+"/music/"+song+"_drum.wav");
 
   sound_intro.loop();
-  sound_intro_lead.loop();
-  sound_intro_guitar.loop();
+  //sound_intro_lead.loop();
+  //sound_intro_guitar.loop();
   sound_intro_vocal.loop();
   sound_intro_drum.loop();
 
